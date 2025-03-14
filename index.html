@@ -22,6 +22,7 @@
         </style>
 
         <script src="babylon.js"></script>
+        <script src="babylon.gui.min.js"></script>
 
     </head>
 
@@ -30,6 +31,7 @@
 	<canvas id="renderCanvas"></canvas>
 
 	<script>
+
         const canvas = document.getElementById("renderCanvas"); // Get the canvas element
         const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
 
@@ -37,29 +39,90 @@
             // This creates a basic Babylon Scene object (non-mesh)
             const scene = new BABYLON.Scene(engine);
 
-            // This creates and positions a free camera (non-mesh)
-            const camera = new BABYLON.FreeCamera("camera1", new BABYLON.Vector3(0, 5, -10), scene);
 
-            // This targets the camera to scene origin
-            camera.setTarget(BABYLON.Vector3.Zero());
 
-            // This attaches the camera to the canvas
-            camera.attachControl(canvas, true);
 
-            // This creates a light, aiming 0,1,0 - to the sky (non-mesh)
-            const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
 
-            // Default intensity is 1. Let's dim the light a small amount
-            light.intensity = 0.7;
+	/**** Set camera and light *****/
+	const camera = new BABYLON.ArcRotateCamera("camera", -Math.PI / 2, Math.PI / 2.5, 10, new BABYLON.Vector3(0, 0, 0));
+	camera.attachControl(canvas, true);
+	const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 
+
+
+
+
+
+	/*
             // Our built-in 'sphere' shape.
-            const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 32}, scene);
+            const sphere = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 2, segments: 8}, scene);
 
             // Move the sphere upward 1/2 its height
             sphere.position.y = 1;
 
             // Our built-in 'ground' shape.
-            const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 6, height: 6}, scene);
+            const ground = BABYLON.MeshBuilder.CreateGround("ground", {width: 2, height: 2}, scene);
+	*/
+
+
+
+
+	//adjust the UV base on the length of the grass
+	const faceUV = [];
+	faceUV[0] = new BABYLON.Vector4(0.5, 0.0, 0.75, 1.0); //rear face
+	faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 0.25, 1.0); //front face
+	faceUV[2] = new BABYLON.Vector4(0.25, 0, 0.5, 1.0); //right side
+	faceUV[3] = new BABYLON.Vector4(0.75, 0, 1.0, 1.0); //left side
+
+	//create a box and assign a grass texture
+	const box = BABYLON.MeshBuilder.CreateBox("box", {faceUV: faceUV, wrap: true}); //unit cube
+	//const box = BABYLON.MeshBuilder.CreateBox("box", {});
+	//box.scaling = new BABYLON.Vector3(1, 5, 1);
+
+	
+	const boxMat = new BABYLON.StandardMaterial("boxMat", scene);
+	boxMat.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/grass.png");
+	box.material = boxMat;
+
+
+
+	// GUI
+	var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+	var panel = new BABYLON.GUI.StackPanel();
+	panel.width = "220px";
+	panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+	panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+	advancedTexture.addControl(panel);
+
+	var header = new BABYLON.GUI.TextBlock();
+	var v_headtext = "height: "
+	header.text = v_headtext + "1";
+	header.height = "30px";
+	header.color = "white";
+	panel.addControl(header); 
+
+	var slider = new BABYLON.GUI.Slider();
+	slider.minimum = 1;
+	slider.maximum = 10;
+	slider.value = 0;
+	slider.height = "20px";
+	slider.width = "200px";
+	slider.onValueChangedObservable.add(function(value) {
+	header.text = v_headtext + value;
+	//header.text = "Y-rotation: " + (BABYLON.Tools.ToDegrees(value) | 0) + " deg";
+	if (box) {
+	    box.scaling.y = value;
+	}
+	});
+	panel.addControl(slider);    
+
+
+
+
+
+
+
 
             return scene;
         };
