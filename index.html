@@ -117,7 +117,8 @@
 		box.scaling.x = value;
 		//box.scaling.y = value;
 		let uvs = box.getVerticesData(BABYLON.VertexBuffer.UVKind);
-			uvs[1] = new BABYLON.Vector4(0.0, 0.0, value, 1); //front face
+		uvs[8] = value;
+		uvs[14] = value;
 
 		box.updateVerticesData(BABYLON.VertexBuffer.UVKind, uvs);
 		//box.setVerticesData(BABYLON.VertexBuffer.UVKind, uvs);
