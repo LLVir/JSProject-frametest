@@ -61,18 +61,46 @@
 
 
 // load the painterly environment model
-	painterly_glb = BABYLON.SceneLoader.ImportMeshAsync("", "models/", "env_mdl_painterly.glb");
+    BABYLON.SceneLoader.ImportMesh("", "models/", "env_mdl_painterly.glb", scene, async (meshes) => {
+        const grass = [];        
+        const painterly = [];        
+        meshes.forEach(mesh => {
+            const children = mesh.getChildMeshes();
+            //console.log(`Mesh: ${mesh.name}`);
+            if(children.length){
+                for(const child of children){
+                    //console.log(`child: ${child.name}`);
+                    if (child.name.toLowerCase().includes("grass")) {
+                        // child.material = grass_nme;
+                        //child.material.dispose();
+                        grass.push(child);
+                    }
+			else {
+				painterly.push(child);
+			}
 
-    // Load Node Material from snippet
-    const grass_nme = BABYLON.NodeMaterial.ParseFromSnippetAsync("FF66JS#34", scene);
+                }
+            }
+        });
 
-		/*
-    // Assign material to submeshes containing "grass"
-    //painterly_glb.meshes.forEach(mesh => {
-	for (const mesh of painterly_glb.subMeshes) {
-        if (mesh.name.toLowerCase().includes("grass")) {
-            mesh.material = grass_nme;
-	}}; */
+	//grass node material
+        const grass_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("NAJDZW", scene);
+
+	//painterly node material
+        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B", scene);
+
+        grass.forEach((t)=>{
+            t.material = grass_nme;
+        });
+
+        painterly.forEach((t)=>{
+            t.material = painterly_nme;
+        });
+    });
+
+
+
+
 
 
 // show inspector properties
