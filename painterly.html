@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ubmesh-materialgg!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
     <head>
@@ -69,6 +69,10 @@
             //console.log(`Mesh: ${mesh.name}`);
             if(children.length){
                 for(const child of children){
+
+			//fix the transparency issue
+			child.hasVertexAlpha = false;
+
                     //console.log(`child: ${child.name}`);
                     if (child.name.toLowerCase().includes("grass")) {
                         // child.material = grass_nme;
