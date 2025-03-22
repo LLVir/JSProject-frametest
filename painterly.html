@@ -1,4 +1,4 @@
-ubmesh-materialgg!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 
     <head>
@@ -58,6 +58,18 @@ ubmesh-materialgg!DOCTYPE html>
 	const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 	scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
+    var sky_mtr = new BABYLON.StandardMaterial("sky_mtr", scene);
+    sky_mtr.diffuseColor = new BABYLON.Color3(0, 0, 0);
+    sky_mtr.emissiveTexture = new BABYLON.Texture("textures/nightsky_ocean.png");
+
+    const skybox = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 100});
+    skybox.overrideMaterialSideOrientation = BABYLON.StandardMaterial.ClockWiseSideOrientation;
+    skybox.position.x = -30;
+    skybox.rotation.y = 159.5;
+    skybox.scaling.y = -1;
+
+    skybox.material = sky_mtr;
+    skybox.renderingGroupId = 0;
 
 
 // load the painterly environment model
@@ -87,12 +99,51 @@ ubmesh-materialgg!DOCTYPE html>
 		    }
         });
 
+        // add variation to the purple shroom by morphing the shroom with different morph targets values
+        let purple1 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.001");
+        purple1.morphTargetManager.getTarget(0).influence = 0.0;
+        purple1.morphTargetManager.getTarget(1).influence = 0.65;
+
+        let purple2 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.002");
+        purple2.morphTargetManager.getTarget(0).influence = 0.09;
+        purple2.morphTargetManager.getTarget(1).influence = 0.33;
+
+        let purple3 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.003");
+        purple3.morphTargetManager.getTarget(0).influence = 0.0;
+        purple3.morphTargetManager.getTarget(1).influence = 1.0;
+
+        let purple4 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.004");
+        purple4.morphTargetManager.getTarget(0).influence = 0.18;
+        purple4.morphTargetManager.getTarget(1).influence = 1.0;
+
+        let purple5 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.005");
+        purple5.morphTargetManager.getTarget(0).influence = 0.83;
+        purple5.morphTargetManager.getTarget(1).influence = 0.0;
+
+        let purple6 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.006");
+        purple6.morphTargetManager.getTarget(0).influence = 0.24;
+        purple6.morphTargetManager.getTarget(1).influence = 0.61;
+
+        let purple7 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.007");
+        purple7.morphTargetManager.getTarget(0).influence = 0.71;
+        purple7.morphTargetManager.getTarget(1).influence = 0.45;
+
+        let purple8 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.008");
+        purple8.morphTargetManager.getTarget(0).influence = 0.0;
+        purple8.morphTargetManager.getTarget(1).influence = 1.0;
+
+
+
 	//grass node material
         const grass_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("NAJDZW#1", scene);
 
 	//painterly node material
-        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#1", scene);
+        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#2", scene);
+ 
+        //this is to fix the alpha mask transparency issue for the island ground 
+        painterly_nme.needDepthPrePass = true;
 
+        // 
         grass.forEach((t)=>{
             t.material = grass_nme;
         });
