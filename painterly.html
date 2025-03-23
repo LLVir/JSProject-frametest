@@ -76,6 +76,7 @@
 	BABYLON.SceneLoader.ImportMesh("", "models/", "env_mdl_painterly.glb", scene, async (meshes) => {
 		const grass = []        
 		const painterly = []        
+		const ground = []        
 		meshes.forEach(mesh => {
 		    const children = mesh.getChildMeshes()
 		    //console.log(`Mesh: ${mesh.name}`);
@@ -90,6 +91,12 @@
 				// child.material = grass_nme;
 				//child.material.dispose(); // it gave a error for some reason - have to ask Andy
 				grass.push(child);
+			    }
+                // ground 
+			    else if (child.name.toLowerCase().includes("base")) {
+				// child.material = grass_nme;
+				//child.material.dispose(); // it gave a error for some reason - have to ask Andy
+				ground.push(child);
 			    }
 				else {
 					painterly.push(child);
@@ -140,12 +147,19 @@
 	//painterly node material
         const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#2", scene);
  
+	//painterly ground node material
+        const ground_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#4", scene);
+ 
         //this is to fix the alpha mask transparency issue for the island ground 
-        painterly_nme.needDepthPrePass = true;
+        ground_nme.needDepthPrePass = true;
 
         // 
         grass.forEach((t)=>{
             t.material = grass_nme;
+        });
+
+        ground.forEach((t)=>{
+            t.material = ground_nme;
         });
 
         painterly.forEach((t)=>{
