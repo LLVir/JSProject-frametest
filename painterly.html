@@ -46,30 +46,33 @@
             const scene = new BABYLON.Scene(engine);
 
 // camera and light setup
-	var camera0 = new BABYLON.ArcRotateCamera("Camera0", -Math.PI / 2, Math.PI / 2, 7, BABYLON.Vector3(0, 10, -20), scene);
+	var camera = new BABYLON.ArcRotateCamera("Camera", -Math.PI / 2, Math.PI / 2, 7, BABYLON.Vector3(0, 10, -20), scene);
 
-	camera0.setTarget(new BABYLON.Vector3(-30, 0, 0));
+	camera.setTarget(new BABYLON.Vector3(-30, 0, 0));
 
 	// Positions the camera overwriting alpha, beta, radius
-	camera0.setPosition(new BABYLON.Vector3(30, 25, -5));
+	camera.setPosition(new BABYLON.Vector3(30, 25, -5));
 
-	camera0.attachControl(canvas, true);
+	camera.attachControl(canvas, true);
 
 	const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 	scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
-    var sky_mtr = new BABYLON.StandardMaterial("sky_mtr", scene);
-    sky_mtr.diffuseColor = new BABYLON.Color3(0, 0, 0);
-    sky_mtr.emissiveTexture = new BABYLON.Texture("textures/nightsky_ocean.png");
+	var sky_mtr = new BABYLON.StandardMaterial("sky_mtr", scene);
+	sky_mtr.diffuseColor = new BABYLON.Color3(0, 0, 0);
+	sky_mtr.ambientColor = new BABYLON.Color3.FromHexString('#103004FF');//add fake distance fog for the bg image
+	sky_mtr.disableLighting = true;
+	sky_mtr.emissiveTexture = new BABYLON.Texture("textures/nightsky_ocean.png");
+	sky_mtr.emissiveTexture.updateSamplingMode(1);//nearest (pixelate) mode
 
-    const skybox = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 100});
-    skybox.overrideMaterialSideOrientation = BABYLON.StandardMaterial.ClockWiseSideOrientation;
-    skybox.position.x = -30;
-    skybox.rotation.y = 159.5;
-    skybox.scaling.y = -1;
+	const skybox = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 100});
+	skybox.overrideMaterialSideOrientation = BABYLON.StandardMaterial.ClockWiseSideOrientation;
+	skybox.position.x = -30;
+	skybox.rotation.y = 159.5;
+	skybox.scaling.y = -1;
 
-    skybox.material = sky_mtr;
-    skybox.renderingGroupId = 0;
+	skybox.material = sky_mtr;
+	skybox.renderingGroupId = 0;
 
 
 // load the painterly environment model
@@ -142,13 +145,13 @@
 
 
 	//grass node material
-        const grass_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("NAJDZW#1", scene);
+        const grass_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("NAJDZW#4", scene);
 
 	//painterly node material
-        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#2", scene);
+        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#7", scene);
  
 	//painterly ground node material
-        const ground_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#4", scene);
+        const ground_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#6", scene);
  
         //this is to fix the alpha mask transparency issue for the island ground 
         ground_nme.needDepthPrePass = true;
@@ -168,7 +171,15 @@
     });
 
 
-
+	// Create default pipeline
+	var defaultPipeline = new BABYLON.DefaultRenderingPipeline("default", false, scene, [camera]);
+	
+	// added bloom effect
+	defaultPipeline.bloomEnabled = true;
+	defaultPipeline.bloomThreshold = 0.6;
+	defaultPipeline.bloomWeight = 0.8;
+	defaultPipeline.bloomKernel = 60;
+	defaultPipeline.bloomScale = 0.3;
 
 
 
