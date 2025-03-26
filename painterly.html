@@ -37,9 +37,16 @@
 
 	<script>
 
+
+
+
+
+
 // babylonjs stuff
         const canvas = document.getElementById("renderCanvas"); // Get the canvas element
-        const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+        //const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+	const engine = new BABYLON.Engine(canvas, true, { audioEngine: true }, true);
+
 
         const createScene = function () {
             // This creates a basic Babylon Scene object (non-mesh)
@@ -55,14 +62,16 @@
 
 	camera.attachControl(canvas, true);
 
+	/*
 	const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 	scene.ambientColor = new BABYLON.Color3(1, 1, 1);
+	*/
 
 	var sky_mtr = new BABYLON.StandardMaterial("sky_mtr", scene);
 	sky_mtr.diffuseColor = new BABYLON.Color3(0, 0, 0);
 	sky_mtr.ambientColor = new BABYLON.Color3.FromHexString('#103004FF');//add fake distance fog for the bg image
 	sky_mtr.disableLighting = true;
-	sky_mtr.emissiveTexture = new BABYLON.Texture("textures/nightsky_ocean.png");
+	sky_mtr.emissiveTexture = new BABYLON.Texture("/textures/painterly_krita_env_c_001.png");
 	sky_mtr.emissiveTexture.updateSamplingMode(1);//nearest (pixelate) mode
 
 	const skybox = BABYLON.MeshBuilder.CreateSphere("sphere", {diameter: 100});
@@ -75,7 +84,7 @@
 	skybox.renderingGroupId = 0;
 
 
-// load the painterly environment model
+// load the painterly environment model and assign the node materials 
 	BABYLON.SceneLoader.ImportMesh("", "models/", "env_mdl_painterly.glb", scene, async (meshes) => {
 		const grass = []        
 		const painterly = []        
@@ -171,20 +180,52 @@
     });
 
 
-	// Create default pipeline
+	// Create default pipeline base on: https://playground.babylonjs.com/#Y3C0HQ#146
 	var defaultPipeline = new BABYLON.DefaultRenderingPipeline("default", false, scene, [camera]);
 	
 	// added bloom effect
 	defaultPipeline.bloomEnabled = true;
 	defaultPipeline.bloomThreshold = 0.6;
-	defaultPipeline.bloomWeight = 0.8;
+	defaultPipeline.bloomWeight = 0.4;
 	defaultPipeline.bloomKernel = 60;
 	defaultPipeline.bloomScale = 0.3;
+
+	// chromatic aberration
+	defaultPipeline.chromaticAberrationEnabled = true;
+	defaultPipeline.chromaticAberration.aberrationAmount  = 13.9000;
+
+	//image processing
+	defaultPipeline.imageProcessingEnabled = true;
+	defaultPipeline.imageProcessing.toneMappingEnabled = true;
+	defaultPipeline.imageProcessing.toneMappingType = 0;
+
+	//vignette
+	defaultPipeline.vignetteEnabled = true;
+	defaultPipeline.imageProcessing.vignetteWeight = 4;
+	defaultPipeline.imageProcessing.vignetteColor = new BABYLON.Color3(0.37254901960784315, 0.28627450980392155, 0);// (HEX : #5F4900
+
+	// dithering
+	defaultPipeline.imageProcessing.ditheringEnabled = true;// 
+	defaultPipeline.imageProcessing.ditheringIntensity = 0.0745098039215686;// 
+
+
+
+	// play the audio track
+	// spatial audio code reference: https://playground.babylonjs.com/#2AH4YH
+	var music = new BABYLON.Sound("island music", "audio/reggae-island-fun-109330.mp3", scene, null, { loop: true, autoplay: true, spatialSound: true, maxDistance: 60 });
+	music.setPosition(new BABYLON.Vector3(-40, 0, 0));//location of the tent child mesh
+	//music.setPosition(new BABYLON.Vector3(40.881710052490234, -1.4811725616455078, 4.083567142486572));//location of the tent child mesh
 
 
 
 // show inspector properties
 	scene.debugLayer.show();
+
+
+
+
+
+
 
 	return scene;
 	};
@@ -200,6 +241,13 @@
         window.addEventListener("resize", function () {
                 engine.resize();
         });
+
+
+
+
+
+
+
 	</script>
 
    </body>
