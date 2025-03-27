@@ -89,34 +89,31 @@
 		const grass = []        
 		const painterly = []        
 		const ground = []        
-		meshes.forEach(mesh => {
-		    const children = mesh.getChildMeshes()
-		    //console.log(`Mesh: ${mesh.name}`);
-		    if(children.length){
+	meshes.forEach(mesh => {
+		const children = mesh.getChildMeshes()
+		//console.log(`Mesh: ${mesh.name}`);
+		if(children.length){
 			for(const child of children){
-
 				//fix the transparency issue
 				child.hasVertexAlpha = false
-
-			    //console.log(`child: ${child.name}`);
-			    if (child.name.toLowerCase().includes("grass")) {
-				// child.material = grass_nme;
-				//child.material.dispose(); // it gave a error for some reason - have to ask Andy
-				grass.push(child);
-			    }
-                // ground 
-			    else if (child.name.toLowerCase().includes("base")) {
-				// child.material = grass_nme;
-				//child.material.dispose(); // it gave a error for some reason - have to ask Andy
-				ground.push(child);
-			    }
+				//console.log(`child: ${child.name}`);
+				//grass
+				if (child.name.toLowerCase().includes("grass")) {
+					// child.material = grass_nme;
+					//child.material.dispose(); // it gave a error for some reason - have to ask Andy
+					grass.push(child);
+				}
+				// ground 
+				else if (child.name.toLowerCase().includes("base")) {
+					ground.push(child);
+				}
+				// the rest
 				else {
 					painterly.push(child);
 				}
-
 			}
-		    }
-        });
+		}
+	});
 
         // add variation to the purple shroom by morphing the shroom with different morph targets values
         let purple1 = painterly.find(p => p.name === "shroom-purple.069_shader_nm_#FF66JS#37.001");
@@ -157,7 +154,7 @@
         const grass_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("NAJDZW#4", scene);
 
 	//painterly node material
-        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#7", scene);
+        const painterly_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#10", scene);
  
 	//painterly ground node material
         const ground_nme = await BABYLON.NodeMaterial.ParseFromSnippetAsync("LBJC9B#6", scene);
@@ -211,9 +208,10 @@
 
 
 	// play the audio track
-	// spatial audio code reference: https://playground.babylonjs.com/#2AH4YH
-	var music = new BABYLON.Sound("island music", "audio/reggae-island-fun-109330.mp3", scene, null, { loop: true, autoplay: true, spatialSound: true, maxDistance: 60 });
-	music.setPosition(new BABYLON.Vector3(-40, 0, 0));//location of the tent child mesh
+		// spatial audio code reference: https://playground.babylonjs.com/#2AH4YH
+		// audio source and license info: https://pixabay.com/music/reggae-reggae-island-fun-109330/
+	const music = new BABYLON.Sound("island music", "audio/reggae-island-fun-109330.mp3", scene, null, { loop: true, autoplay: true, spatialSound: true, maxDistance: 60 });
+	music.setPosition(new BABYLON.Vector3(-40, 0, 0));//position the music near the tent child mesh
 	//music.setPosition(new BABYLON.Vector3(40.881710052490234, -1.4811725616455078, 4.083567142486572));//location of the tent child mesh
 
 
