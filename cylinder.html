@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+        <title>Babylon Template</title>
+
+        <style>
+            html, body {
+                overflow: hidden;
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            #renderCanvas {
+                width: 100%;
+                height: 100%;
+                touch-action: none;
+            }
+        </style>
+
+        <script src="babylon.js"></script>
+        <script src="babylon.gui.min.js"></script>
+
+    </head>
+
+   <body>
+
+	<canvas id="renderCanvas"></canvas>
+
+	<script>
+
+        const canvas = document.getElementById("renderCanvas"); // Get the canvas element
+        const engine = new BABYLON.Engine(canvas, true); // Generate the BABYLON 3D engine
+
+        const createScene = function () {
+            // This creates a basic Babylon Scene object (non-mesh)
+            const scene = new BABYLON.Scene(engine);
+
+
+	/**** Set camera and light *****/
+	const camera = new BABYLON.ArcRotateCamera("camera", (-Math.PI / 2) - 0.1, Math.PI / 3.5, 5, new BABYLON.Vector3(0, 2, -3));
+	camera.attachControl(canvas, true);
+	const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
+	scene.ambientColor = new BABYLON.Color3(1, 1, 1);
+
+
+		/* Paul's original
+	// Our built-in 'sphere' shape.
+	var corner1 = BABYLON.MeshBuilder.CreateCylinder("sphere", {diameter: 2, subdivisions: 1, height: .3, arc: .25}, scene);
+	var corner2 = BABYLON.MeshBuilder.CreateCylinder("sphere", {diameter: 2, subdivisions: 1, height: .3, arc: .25}, scene);
+	var middle = BABYLON.MeshBuilder.CreateBox("Middle", {width: 1, height: .3, depth: 1}, scene);
+	let centerDistance = 3;
+	corner1.position.x = centerDistance;
+	corner2.position.x = centerDistance * -1;
+	corner2.scaling.x = -1;
+	middle.position.z = -.5;
+	middle.scaling.x = centerDistance*2;
+
+	const meshArray = [corner1, corner2, middle];
+	const halfMesh = BABYLON.Mesh.MergeMeshes(meshArray);
+	const newhalf = halfMesh.clone();
+	newhalf.scaling.z = -1;
+	*/
+
+
+// create middle section
+
+	// dimension
+	const v_width = 4;
+	const v_height = 0.2;
+	const v_depth = 2;
+
+	// create the mesh that includes the UV
+	const v_middle = BABYLON.MeshBuilder.CreateBox("Middle", {
+		faceUV: [
+		    new BABYLON.Vector4(0, 0, v_width, v_height), //rear
+		    new BABYLON.Vector4(0, 0, v_width, v_height), //front
+		    new BABYLON.Vector4(0, 0, v_depth, v_height), //right
+		    new BABYLON.Vector4(0, 0, v_depth, v_height), //left
+		    new BABYLON.Vector4(0, 0, v_width, v_depth), //top
+		    new BABYLON.Vector4(0, 0, v_width, v_depth)  //bottom
+		],
+		wrap: true,
+		updatable: true,
+		width: v_width,
+		height: v_height,
+		depth: v_depth
+	}, scene);
+
+// create the corner1 section
+	
+	// dimension
+	const v_diameter = v_depth; // make the diameter match the depth of the box
+	const v_corner1RotY = Math.PI * -0.5; // rotate the cylinder 180 degree where the opening matches up the edge of the box
+	const v_corner1PosX = v_width * 0.5; //position the cylinder where the opening matches up the edge of the box
+		
+	// create the mesh that includes the UV
+	const v_corner1 = BABYLON.MeshBuilder.CreateCylinder("corner1", {
+		faceUV: [
+		    new BABYLON.Vector4(0, 0, v_diameter, v_diameter), //bottom
+		    new BABYLON.Vector4(0, 0, Math.PI, v_height), //side
+		    new BABYLON.Vector4(0, 0, v_diameter, v_diameter), //top
+		],
+		wrap: true,
+		updatable: true,
+		diameter: v_diameter,
+		height: v_height,
+		arc: 0.5
+	}, scene);
+
+	v_corner1.position.x = v_corner1PosX;
+	v_corner1.rotation.y = v_corner1RotY;
+
+// create the corner2 section with instance
+
+	const v_corner2 = v_corner1.createInstance();
+	v_corner2.position.x = v_corner1PosX * -1;
+	v_corner2.rotation.y = v_corner1RotY * -1;
+
+// create merge mesh
+	const meshArray = [v_corner1, v_corner2, v_middle];
+	//const v_final = BABYLON.Mesh.MergeMeshes(meshArray);// error...have to look into it
+
+// set material for the box
+	const Mat = new BABYLON.StandardMaterial("Mat", scene);
+	Mat.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/amiga.jpg");
+	Mat.ambientColor = new BABYLON.Color3 (0.5, 0.5, 0.5);
+	//v_final.material = Mat; //doesn't work yet
+	// workaround for now
+	meshArray[0].material = Mat;
+	meshArray[1].material = Mat;
+	meshArray[2].material = Mat;
+
+
+
+/* GUI
+	var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
+
+	var panel = new BABYLON.GUI.StackPanel();
+	panel.width = "220px";
+	panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
+	panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
+	advancedTexture.addControl(panel);
+
+	var header = new BABYLON.GUI.TextBlock();
+	var v_headtext = "width: "
+	header.text = v_headtext + "1";
+	header.height = "30px";
+	header.color = "white";
+	panel.addControl(header); 
+
+	var slider = new BABYLON.GUI.Slider();
+	slider.minimum = 1;
+	slider.maximum = 10;
+	slider.value = 1;
+	slider.height = "20px";
+	slider.width = "200px";
+	slider.onValueChangedObservable.add(function(value) {
+	header.text = v_headtext + value;
+	if (middle) {
+		middle.scaling.x = value;
+		//box.scaling.y = value;
+		let uvs = middle.getVerticesData(BABYLON.VertexBuffer.UVKind);
+		uvs[8] = value;
+		uvs[14] = value;
+
+		middle.updateVerticesData(BABYLON.VertexBuffer.UVKind, uvs);
+		//box.setVerticesData(BABYLON.VertexBuffer.UVKind, uvs);
+	   	}
+	});
+	panel.addControl(slider);    
+	*/
+
+
+
+
+            return scene;
+        };
+
+        const scene = createScene(); //Call the createScene function
+
+        // Register a render loop to repeatedly render the scene
+        engine.runRenderLoop(function () {
+                scene.render();
+        });
+
+        // Watch for browser/canvas resize events
+        window.addEventListener("resize", function () {
+                engine.resize();
+        });
+	</script>
+
+   </body>
+
+</html>

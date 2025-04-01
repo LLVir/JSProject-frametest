@@ -63,7 +63,13 @@
         var scene = null;
         var sceneToRender = null;
         var createDefaultEngine = function() { return new BABYLON.Engine(canvas, true, { preserveDrawingBuffer: true, stencil: true,  disableWebGL2Support: false}); };
+
+
+
+
+
         var createScene = function () {
+
     // This creates a basic Babylon Scene object (non-mesh)
     var scene = new BABYLON.Scene(engine);
 
@@ -91,22 +97,8 @@
 
 
 
-
-	// map the uv of each faces of the box
-	const faceUV = [];
-	faceUV[0] = new BABYLON.Vector4(0.0, 0.0, 0.0, 0.0); //rear face
-	faceUV[1] = new BABYLON.Vector4(0.0, 0.0, 1.0, 1.0); //front face
-	faceUV[2] = new BABYLON.Vector4(0.0, 0.0, 0.0, 0.0); //right side
-	faceUV[3] = new BABYLON.Vector4(0.0, 0.0, 0.0, 0.0); //left side
-	faceUV[4] = new BABYLON.Vector4(0.0, 0.0, 0.0, 0.0); //top side
-	faceUV[5] = new BABYLON.Vector4(0.0, 0.0, 0.0, 0.0); //bottom side
-
-
-    let armRestDistance = 1;
-
+	let armRestDistance = 1;
 	let armRestWidth = 0.3;
-
-
 
 
 
