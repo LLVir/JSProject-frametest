@@ -42,7 +42,10 @@
 
 	/**** Set camera and light *****/
 	const camera = new BABYLON.ArcRotateCamera("camera", (-Math.PI / 2) - 0.1, Math.PI / 3.5, 5, new BABYLON.Vector3(0, 2, -3));
+	camera.setTarget(new BABYLON.Vector3(0, 0, 0));
+	// Positions the camera overwriting alpha, beta, radius
 	camera.attachControl(canvas, true);
+
 	const light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(1, 1, 0));
 	scene.ambientColor = new BABYLON.Color3(1, 1, 1);
 
@@ -69,110 +72,80 @@
 // create middle section
 
 	// dimension
-	const v_width = 4;
-	const v_height = 0.2;
-	const v_depth = 2;
+	const c_width = 4;
+	const c_height = 0.2;
+	const c_depth = 2;
 
 	// create the mesh that includes the UV
-	const v_middle = BABYLON.MeshBuilder.CreateBox("Middle", {
+	const c_middle = BABYLON.MeshBuilder.CreateBox("Middle", {
 		faceUV: [
-		    new BABYLON.Vector4(0, 0, v_width, v_height), //rear
-		    new BABYLON.Vector4(0, 0, v_width, v_height), //front
-		    new BABYLON.Vector4(0, 0, v_depth, v_height), //right
-		    new BABYLON.Vector4(0, 0, v_depth, v_height), //left
-		    new BABYLON.Vector4(0, 0, v_width, v_depth), //top
-		    new BABYLON.Vector4(0, 0, v_width, v_depth)  //bottom
+		    new BABYLON.Vector4(0, 0, c_width, c_height), //rear
+		    new BABYLON.Vector4(0, 0, c_width, c_height), //front
+		    new BABYLON.Vector4(0, 0, c_depth, c_height), //right
+		    new BABYLON.Vector4(0, 0, c_depth, c_height), //left
+		    new BABYLON.Vector4(0, 0, c_width, c_depth), //top
+		    new BABYLON.Vector4(0, 0, c_width, c_depth)  //bottom
 		],
 		wrap: true,
 		updatable: true,
-		width: v_width,
-		height: v_height,
-		depth: v_depth
+		width: c_width,
+		height: c_height,
+		depth: c_depth
 	}, scene);
 
 // create the corner1 section
 	
 	// dimension
-	const v_diameter = v_depth; // make the diameter match the depth of the box
-	const v_corner1RotY = Math.PI * -0.5; // rotate the cylinder 180 degree where the opening matches up the edge of the box
-	const v_corner1PosX = v_width * 0.5; //position the cylinder where the opening matches up the edge of the box
+	const c_diameter = c_depth; // make the diameter match the depth of the box
+	const c_corner1RotY = Math.PI * -0.5; // rotate the cylinder 180 degree where the opening matches up the edge of the box
+	const c_corner1PosX = c_width * 0.5; //position the cylinder where the opening matches up the edge of the box
 		
 	// create the mesh that includes the UV
-	const v_corner1 = BABYLON.MeshBuilder.CreateCylinder("corner1", {
+	const c_corner1 = BABYLON.MeshBuilder.CreateCylinder("corner1", {
 		faceUV: [
-		    new BABYLON.Vector4(0, 0, v_diameter, v_diameter), //bottom
-		    new BABYLON.Vector4(0, 0, Math.PI, v_height), //side
-		    new BABYLON.Vector4(0, 0, v_diameter, v_diameter), //top
+		    new BABYLON.Vector4(0, 0, c_diameter, c_diameter), //bottom
+		    new BABYLON.Vector4(0, 0, Math.PI, c_height), //side
+		    new BABYLON.Vector4(0, 0, c_diameter, c_diameter), //top
 		],
 		wrap: true,
 		updatable: true,
-		diameter: v_diameter,
-		height: v_height,
+		diameter: c_diameter,
+		height: c_height,
 		arc: 0.5
 	}, scene);
 
-	v_corner1.position.x = v_corner1PosX;
-	v_corner1.rotation.y = v_corner1RotY;
+	c_corner1.position.x = c_corner1PosX;
+	c_corner1.rotation.y = c_corner1RotY;
 
 // create the corner2 section with instance
 
-	const v_corner2 = v_corner1.createInstance();
-	v_corner2.position.x = v_corner1PosX * -1;
-	v_corner2.rotation.y = v_corner1RotY * -1;
+	//const c_corner2 = c_corner1.createInstance();// instance meshes can't not be merge later 
+	const c_corner2 = c_corner1.clone();//use clone instead
+	c_corner2.position.x = c_corner1PosX * -1;
+	c_corner2.rotation.y = c_corner1RotY * -1;
 
-// create merge mesh
-	const meshArray = [v_corner1, v_corner2, v_middle];
-	//const v_final = BABYLON.Mesh.MergeMeshes(meshArray);// error...have to look into it
-
-// set material for the box
+// set material for the meshes
 	const Mat = new BABYLON.StandardMaterial("Mat", scene);
 	Mat.diffuseTexture = new BABYLON.Texture("https://www.babylonjs-playground.com/textures/amiga.jpg");
 	Mat.ambientColor = new BABYLON.Color3 (0.5, 0.5, 0.5);
-	//v_final.material = Mat; //doesn't work yet
-	// workaround for now
-	meshArray[0].material = Mat;
-	meshArray[1].material = Mat;
-	meshArray[2].material = Mat;
+	c_middle.material = Mat;
+	c_corner1.material = Mat;
+	c_corner2.material = Mat;
+
+// create merge mesh
+	const meshArray = [c_corner1, c_corner2, c_middle];
+	const c_final = BABYLON.Mesh.MergeMeshes(meshArray, );
+	c_final.name = "newMesh";
 
 
 
-/* GUI
-	var advancedTexture = BABYLON.GUI.AdvancedDynamicTexture.CreateFullscreenUI("UI");
 
-	var panel = new BABYLON.GUI.StackPanel();
-	panel.width = "220px";
-	panel.horizontalAlignment = BABYLON.GUI.Control.HORIZONTAL_ALIGNMENT_RIGHT;
-	panel.verticalAlignment = BABYLON.GUI.Control.VERTICAL_ALIGNMENT_CENTER;
-	advancedTexture.addControl(panel);
 
-	var header = new BABYLON.GUI.TextBlock();
-	var v_headtext = "width: "
-	header.text = v_headtext + "1";
-	header.height = "30px";
-	header.color = "white";
-	panel.addControl(header); 
+// show inspector properties
+	scene.debugLayer.show();
 
-	var slider = new BABYLON.GUI.Slider();
-	slider.minimum = 1;
-	slider.maximum = 10;
-	slider.value = 1;
-	slider.height = "20px";
-	slider.width = "200px";
-	slider.onValueChangedObservable.add(function(value) {
-	header.text = v_headtext + value;
-	if (middle) {
-		middle.scaling.x = value;
-		//box.scaling.y = value;
-		let uvs = middle.getVerticesData(BABYLON.VertexBuffer.UVKind);
-		uvs[8] = value;
-		uvs[14] = value;
 
-		middle.updateVerticesData(BABYLON.VertexBuffer.UVKind, uvs);
-		//box.setVerticesData(BABYLON.VertexBuffer.UVKind, uvs);
-	   	}
-	});
-	panel.addControl(slider);    
-	*/
+
 
 
 
